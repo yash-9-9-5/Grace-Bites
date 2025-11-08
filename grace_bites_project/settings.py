@@ -65,6 +65,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'whitenoise.runserver_nostatic',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'grace_bites_project.middleware.CSRFDebugMiddleware',
+    'grace_bites_project',
     
     # WhiteNoise for serving static files on Vercel
     # Note: WhiteNoise middleware handles static file serving
