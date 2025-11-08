@@ -44,9 +44,10 @@ if not DEBUG:
     if allowed_hosts_str:
         ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
     else:
-        # If no ALLOWED_HOSTS set in production, allow all (not ideal but prevents errors)
-        # TODO: Set ALLOWED_HOSTS environment variable in Vercel!
-        ALLOWED_HOSTS = ['*']
+        # If no ALLOWED_HOSTS set in production, allow all Vercel domains
+        # This prevents DisallowedHost errors during initial deployment
+        # TODO: Set ALLOWED_HOSTS environment variable in Vercel for security!
+        ALLOWED_HOSTS = ['*', '.vercel.app']
         import warnings
         warnings.warn("ALLOWED_HOSTS not set in production! Set it in Vercel environment variables.")
 else:

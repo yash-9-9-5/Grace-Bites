@@ -50,12 +50,12 @@ def handler(request):
     """
     Handle incoming HTTP requests for Vercel serverless functions.
     
-    Vercel's Python runtime passes request as an object with attributes:
-    - request.method: HTTP method string
-    - request.path: URL path string
-    - request.headers: dict-like object of headers
-    - request.body: request body (string or bytes)
-    - request.query: dict of query parameters (optional)
+    Vercel's Python runtime (@vercel/python) passes request as a dict with:
+    - request['method']: HTTP method string
+    - request['path']: URL path string
+    - request['headers']: dict of headers
+    - request['body']: request body (string)
+    - request['query']: dict of query parameters (optional)
     
     Returns a dict with:
     - statusCode: HTTP status code (int)
@@ -63,23 +63,35 @@ def handler(request):
     - body: response body as string
     """
     try:
+        # Log request for debugging (remove in production)
+        print(f"Request received: {type(request)}", file=sys.stderr)
+        if isinstance(request, dict):
+            print(f"Request keys: {list(request.keys())}", file=sys.stderr)
+        
         # Get Django app (with error handling)
         django_app = get_django_app()
         
-        # Extract request data - handle both dict and object formats
-        if hasattr(request, 'method'):
+        # Extract request data - Vercel Python runtime uses dict format
+        if isinstance(request, dict):
+            method = request.get('method', 'GET')
+            path = request.get('path', '/')
+            headers = request.get('headers', {})
+            body = request.get('body', '')
+            query = request.get('query', {})
+        elif hasattr(request, 'method'):
+            # Fallback for object format
             method = request.method
             path = getattr(request, 'path', '/')
             headers = getattr(request, 'headers', {})
             body = getattr(request, 'body', '')
             query = getattr(request, 'query', {})
         else:
-            # Fallback for dict-like requests
-            method = request.get('method', 'GET')
-            path = request.get('path', '/')
-            headers = request.get('headers', {})
-            body = request.get('body', '')
-            query = request.get('query', {})
+            # Last resort - try to access as dict
+            method = request.get('method', 'GET') if hasattr(request, 'get') else 'GET'
+            path = request.get('path', '/') if hasattr(request, 'get') else '/'
+            headers = request.get('headers', {}) if hasattr(request, 'get') else {}
+            body = request.get('body', '') if hasattr(request, 'get') else ''
+            query = request.get('query', {}) if hasattr(request, 'get') else {}
         
         # Convert headers to dict if needed
         if not isinstance(headers, dict):
