@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!h14rpdb9(i%#2+*hn^@7hqz*ncxdq7km&$l34ek&ng@cj$^s!'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!h14rpdb9(i%#2+*hn^@7hqz*ncxdq7km&$l34ek&ng@cj$^s!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS - Critical for Vercel deployment
+# Accept all Vercel domains by default, or use environment variable
+vercel_hosts = os.environ.get('ALLOWED_HOSTS', '')
+if vercel_hosts:
+    ALLOWED_HOSTS = [host.strip() for host in vercel_hosts.split(',') if host.strip()]
+else:
+    # Default: Allow all Vercel domains (for initial deployment)
+    # In production, set ALLOWED_HOSTS environment variable
+    ALLOWED_HOSTS = ['*']  # Accepts all hosts - set specific domains in production!
 
 
 # Application definition
@@ -81,12 +90,31 @@ WSGI_APPLICATION = 'grace_bites_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Check if PostgreSQL environment variables are set (for Vercel/production)
+if os.environ.get('DB_NAME'):
+    # Use PostgreSQL if database credentials are provided
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'OPTIONS': {
+                'connect_timeout': 10,
+            },
+        }
     }
-}
+else:
+    # Fallback to SQLite for local development
+    # NOTE: SQLite will NOT work on Vercel - you need PostgreSQL!
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -138,7 +166,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() in ('true', '1', 'yes')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000,http://127.0.0.1:8000').split(',')
+# Add Vercel domain to trusted origins if set
+vercel_url = os.environ.get('VERCEL_URL')
+if vercel_url:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{vercel_url}')
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_HTTPONLY = False

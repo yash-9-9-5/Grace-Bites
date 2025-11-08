@@ -30,9 +30,19 @@ def get_django_app():
         try:
             _django_app = get_wsgi_application()
         except Exception as e:
-            # Log initialization error
-            error_msg = f"Django initialization failed: {str(e)}\n{traceback.format_exc()}"
+            # Log initialization error with detailed info
+            error_type = type(e).__name__
+            error_msg = f"Django initialization failed: {error_type}: {str(e)}\n{traceback.format_exc()}"
             print(error_msg, file=sys.stderr)
+            
+            # Check for common issues
+            if 'sqlite3' in str(e).lower() or 'database' in str(e).lower():
+                print("⚠️  DATABASE ERROR: SQLite doesn't work on Vercel. You need PostgreSQL!", file=sys.stderr)
+            if 'allowed_hosts' in str(e).lower() or 'disallowedhost' in str(e).lower():
+                print("⚠️  ALLOWED_HOSTS ERROR: Set ALLOWED_HOSTS environment variable!", file=sys.stderr)
+            if 'import' in str(e).lower() or 'module' in str(e).lower():
+                print("⚠️  IMPORT ERROR: Check requirements.txt and dependencies!", file=sys.stderr)
+            
             raise
     return _django_app
 
