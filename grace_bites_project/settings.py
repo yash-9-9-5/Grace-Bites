@@ -59,21 +59,18 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
+    # Django core apps (required)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'whitenoise.runserver_nostatic',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'grace_bites_project.middleware.CSRFDebugMiddleware',
-    'grace_bites_project',
     
-    # WhiteNoise for serving static files on Vercel
-    # Note: WhiteNoise middleware handles static file serving
-
-    # My apps
+    # Third-party apps (optional, handled gracefully)
+    # WhiteNoise is not an app - it's middleware only
+    
+    # Project apps
     'accounts',
     'core',
     'restaurant',
@@ -81,18 +78,33 @@ INSTALLED_APPS = [
     'eventplanner',
 ]
 
+# Build middleware list - handle optional packages gracefully
 MIDDLEWARE = [
+    # Core Django middleware (required)
     'django.middleware.security.SecurityMiddleware',
-    # WhiteNoise middleware - must be right after SecurityMiddleware
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+]
+
+# Add WhiteNoise middleware if available (for Vercel static file serving)
+try:
+    import whitenoise
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    # WhiteNoise not installed - static files won't be served optimally
+    # This is OK for development, but needed for Vercel production
+    pass
+
+# Add remaining core Django middleware (required)
+MIDDLEWARE.extend([
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',  # Temporarily disabled
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Custom middleware
     'grace_bites_project.middleware.CSRFDebugMiddleware',
-]
+])
 
 ROOT_URLCONF = 'grace_bites_project.urls'
 
@@ -209,7 +221,13 @@ STATICFILES_DIRS = [
 
 # WhiteNoise configuration for serving static files
 # WhiteNoise will serve files from STATIC_ROOT in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Only use if whitenoise is installed (graceful handling)
+try:
+    import whitenoise
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+except ImportError:
+    # Fallback to default static files storage if WhiteNoise not available
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Media files (user uploads)
 # NOTE: On Vercel, you should use cloud storage (S3, Cloudinary, etc.)
