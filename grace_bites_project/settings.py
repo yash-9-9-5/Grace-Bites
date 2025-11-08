@@ -20,22 +20,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!3f#+ho%nx4f0dl19#6w+gg3+#(w27oo(czdt&szd$%n!6j3g7m!')
+# --- VERCEL DEPLOYMENT SETTINGS ---
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+# 1. SECRET_KEY
+# If the environment variable SECRET_KEY exists, use it. Otherwise, use a fallback
+# for local development (or raise an error if needed).
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 
+    'django-insecure-k%&j(69w#^t=c%&j(69w#^t=c%&j(69w#^t=c%&j(69w#^t=c' # Use a temporary dummy key for local fallback if necessary
+) 
 
-# ALLOWED_HOSTS - Critical for Vercel deployment
-# Accept all Vercel domains by default, or use environment variable
-vercel_hosts = os.environ.get('ALLOWED_HOSTS', '')
-if vercel_hosts:
-    ALLOWED_HOSTS = [host.strip() for host in vercel_hosts.split(',') if host.strip()]
+# 2. DEBUG
+# Set DEBUG based on the environment variable, defaulting to True for safety locally.
+# Vercel will set this to 'False' based on your configuration.
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# 3. ALLOWED_HOSTS
+# Read ALLOWED_HOSTS from the environment variable and split it by comma.
+# Fallback to an empty list or specific localhost for local development.
+# We also ensure the production URL is always an allowed host when DEBUG is False.
+if not DEBUG:
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 else:
-    # Default: Allow all Vercel domains (for initial deployment)
-    # In production, set ALLOWED_HOSTS environment variable
-    ALLOWED_HOSTS = ['*']  # Accepts all hosts - set specific domains in production!
+    # Use standard localhost only during local development
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+# --- END VERCEL DEPLOYMENT SETTINGS ---
 
 # Application definition
 
