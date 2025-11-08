@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Remove Event Food Donation - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Remove Event Food Donation</h1>
+        <p>Are you sure you want to remove this event food donation?</p>
+        
+        <div class="donation-details">
+            <h3>{{ donation.food_type }}</h3>
+            <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+            <p><strong>Location:</strong> {{ donation.location }}</p>
+            <p><strong>Expiry Date:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+            {% if donation.description %}
+                <p><strong>Description:</strong> {{ donation.description }}</p>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Remove Donation</button>
+                <a href="{% url 'eventplanner_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,20 @@
+<div class="request-card">
+    <div class="request-header">
+        <h3>{{ request.food_type }}</h3>
+        <span class="status pending">{{ request.status }}</span>
+    </div>
+    <div class="request-details">
+        <p><strong>Required:</strong> {{ request.quantity_required }}</p>
+        <p><strong>Location:</strong> {{ request.location }}</p>
+        <p><strong>Timing:</strong> {{ request.required_timing|date:"M d, Y H:i" }}</p>
+        <p><strong>From:</strong> {{ request.requester.username }}</p>
+        {% if request.description %}
+            <p><strong>Description:</strong> {{ request.description }}</p>
+        {% endif %}
+    </div>
+    <div class="request-actions">
+        {# The URLs are passed from the parent template #}
+        <a href="{% url fulfill_url_name request.id %}" class="btn btn-small">Fulfill Request</a>
+        <a href="{% url view_ngo_url_name request.requester.id %}" class="btn btn-small btn-secondary">View NGO</a>
+    </div>
+</div>

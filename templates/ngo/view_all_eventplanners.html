@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}All Event Planners - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="eventplanners-container">
+        <h1>All Event Planners on App</h1>
+        <p>Browse and connect with event planners in your area.</p>
+        
+        <div class="eventplanners-grid">
+            {% for eventplanner_data in all_eventplanners %}
+            <div class="eventplanner-card">
+                <div class="eventplanner-header">
+                    <h3>{{ eventplanner_data.user.username }}</h3>
+                    {% if eventplanner_data.profile %}
+                        {% if eventplanner_data.profile.company_name %}
+                            <p class="org-name">{{ eventplanner_data.profile.company_name }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="eventplanner-details">
+                    {% if eventplanner_data.profile %}
+                        {% if eventplanner_data.profile.description %}
+                            <p>{{ eventplanner_data.profile.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        <p><strong>Location:</strong> {{ eventplanner_data.profile.address }}</p>
+                        <p><strong>Contact:</strong> {{ eventplanner_data.profile.contact_number }}</p>
+                    {% else %}
+                        <p><strong>Location:</strong> Not specified</p>
+                        <p><strong>Contact:</strong> Not specified</p>
+                    {% endif %}
+                </div>
+                <div class="eventplanner-actions">
+                    <a href="#" class="btn btn-small">View Details</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No event planners registered yet.</p>
+                <a href="{% url 'ngo_dashboard' %}" class="btn">Back to Dashboard</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

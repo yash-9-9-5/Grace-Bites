@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Donation - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="completion-container">
+        <h1>Complete Donation</h1>
+        <p>Record the completion of this food donation and the number of people served.</p>
+        
+        <div class="donation-info">
+            <h3>Donation Details</h3>
+            <p><strong>Food Type:</strong> {{ collaboration.food_donation.food_type }}</p>
+            <p><strong>Quantity:</strong> {{ collaboration.food_donation.quantity }}</p>
+            <p><strong>From:</strong> {{ collaboration.donor.username }}</p>
+            {% if collaboration.notes %}
+                <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+            {% endif %}
+        </div>
+        
+        <form method="post" class="completion-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.people_served.id_for_label }}">Number of People Served:</label>
+                {{ form.people_served }}
+                {% if form.people_served.errors %}
+                    <div class="error-message">{{ form.people_served.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Complete Donation</button>
+                <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

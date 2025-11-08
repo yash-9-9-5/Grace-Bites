@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Fulfill NGO Request - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Fulfill NGO Request</h1>
+        <p>Help fulfill a food request from an NGO.</p>
+        
+        <div class="request-details">
+            <h3>Request Details</h3>
+            <p><strong>Food Type:</strong> {{ ngo_request.food_type }}</p>
+            <p><strong>Quantity Required:</strong> {{ ngo_request.quantity_required }}</p>
+            <p><strong>Location:</strong> {{ ngo_request.location }}</p>
+            <p><strong>Required Timing:</strong> {{ ngo_request.required_timing|date:"M d, Y H:i" }}</p>
+            <p><strong>From NGO:</strong> {{ ngo_request.requester.username }}</p>
+            {% if ngo_request.description %}
+                <p><strong>Description:</strong> {{ ngo_request.description }}</p>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}">Collaboration Notes:</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div class="error">{{ form.notes.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Fulfill Request</button>
+                <a href="{% url 'eventplanner_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

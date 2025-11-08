@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}NGO Dashboard - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Grace Bites Logo">
+    </div>
+    <div class="dashboard-header">
+        <div class="header-content">
+            <a href="{% url 'ngo_badge_info' %}" class="badge-link">
+                <div class="badge-spot">
+                    {% if badge_level %}
+                        {% if badge_level == 'BRONZE' %}
+                            <img src="{% static 'badges/bronze_badge.png' %}" alt="Bronze Badge" class="badge-image" title="Bronze Badge - 500+ people helped this month">
+                        {% elif badge_level == 'SILVER' %}
+                            <img src="{% static 'badges/silver_badge.png' %}" alt="Silver Badge" class="badge-image" title="Silver Badge - 1000+ people helped this month">
+                        {% elif badge_level == 'GOLD' %}
+                            <img src="{% static 'badges/gold_badge.png' %}" alt="Gold Badge" class="badge-image" title="Gold Badge - 1500+ people helped this month">
+                        {% elif badge_level == 'DIAMOND' %}
+                            <img src="{% static 'badges/diamond_badge.png' %}" alt="Diamond Badge" class="badge-image" title="Diamond Badge - 1700+ people helped this month">
+                        {% endif %}
+                    {% else %}
+                        <div class="no-badge-text">No badges received yet</div>
+                    {% endif %}
+                </div>
+            </a>
+            <div class="welcome-content">
+                <h1>Welcome, {{ request.user.username }}!</h1>
+                <p>Find and request food donations to help those in need.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'delete_account' %}" class="btn btn-danger" 
+                   onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                    🗑️ Delete Account
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Food Requests</h3>
+            <p class="stat-number">{{ user_requests.count }}</p>
+            <p class="stat-label">This month</p>
+        </div>
+        <div class="stat-card">
+            <h3>Donations Received</h3>
+            <p class="stat-number">{{ analysis.requests_fulfilled_count }}</p>
+            <p class="stat-label">Total</p>
+        </div>
+        <div class="stat-card">
+            <h3>People Helped</h3>
+            <p class="stat-number">{{ analysis.total_people_served }}</p>
+            <p class="stat-label">Total served</p>
+        </div>
+        <div class="stat-card">
+            <h3>Monthly Impact</h3>
+            <p class="stat-number">{{ analysis.monthly_people_served }}</p>
+            <p class="stat-label">This month</p>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="dashboard-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{% url 'add_food_request' %}" class="btn">Request Food</a>
+            <a href="{% url 'ngo_profile' %}" class="btn">Update Profile</a>
+            <a href="{% url 'view_all_donations' %}" class="btn">Browse Donations</a>
+            <a href="{% url 'view_all_restaurants' %}" class="btn">View Restaurants</a>
+            <a href="{% url 'view_all_eventplanners' %}" class="btn">View Event Planners</a>
+        </div>
+    </div>
+    
+    <!-- Available Food Section -->
+    <div class="dashboard-section" id="available-food">
+        <h2>All Food Posted by Restaurants</h2>
+        <div class="food-grid">
+            {% for donation in all_food_donations %}
+            <div class="food-card">
+                {% if donation.image %}
+                    <img src="{{ donation.image.url }}" alt="{{ donation.food_type }}" class="food-image">
+                {% endif %}
+                <div class="food-details">
+                    <h3>{{ donation.food_type }}</h3>
+                    <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+                    <p><strong>Location:</strong> {{ donation.location }}</p>
+                    <p><strong>Expires:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+                    <p><strong>From:</strong> {{ donation.donor.username }}</p>
+                    {% if donation.description %}
+                        <p><strong>Description:</strong> {{ donation.description|truncatewords:15 }}</p>
+                    {% endif %}
+                    <div class="food-actions">
+                        <a href="{% url 'request_food_from_donation' donation.id %}" class="btn btn-small">Request Food</a>
+                        <a href="{% url 'view_restaurant_details' donation.donor.id %}" class="btn btn-small btn-secondary">View Restaurant</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No food donations available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Your Requests Section -->
+    <div class="dashboard-section">
+        <h2>Your Food Requests</h2>
+        <div class="requests-grid">
+            {% for request in user_requests %}
+            <div class="request-card">
+                <div class="request-header">
+                    <h3>{{ request.food_type }}</h3>
+                    <span class="status {{ request.status|lower }}">{{ request.status }}</span>
+                </div>
+                <div class="request-details">
+                    <p><strong>Required:</strong> {{ request.quantity_required }}</p>
+                    <p><strong>Location:</strong> {{ request.location }}</p>
+                    <p><strong>Timing:</strong> {{ request.required_timing|date:"M d, Y H:i" }}</p>
+                    {% if request.description %}
+                        <p><strong>Description:</strong> {{ request.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="request-actions">
+                    <a href="{% url 'edit_food_request' request.id %}" class="btn btn-small">Edit</a>
+                    <a href="{% url 'delete_food_request' request.id %}" class="btn btn-small btn-danger">Delete</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No food requests yet. Start by requesting food!</p>
+                <a href="{% url 'add_food_request' %}" class="btn">Make First Request</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- All Restaurants Section -->
+    <div class="dashboard-section" id="all-restaurants">
+        <h2>All Restaurant Names List</h2>
+        <div class="restaurants-grid">
+            {% for restaurant_data in all_restaurants %}
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <h3>{{ restaurant_data.user.username }}</h3>
+                    {% if restaurant_data.profile %}
+                        {% if restaurant_data.profile.restaurant_name %}
+                            <p class="org-name">{{ restaurant_data.profile.restaurant_name }}</p>
+                        {% else %}
+                            <p class="org-name">No restaurant name set</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="org-name">No profile found</p>
+                    {% endif %}
+                </div>
+                <div class="restaurant-details">
+                    {% if restaurant_data.profile %}
+                        {% if restaurant_data.profile.description %}
+                            <p>{{ restaurant_data.profile.description|truncatewords:20 }}</p>
+                        {% else %}
+                            <p>No description available</p>
+                        {% endif %}
+                        <p><strong>Location:</strong> 
+                            {% if restaurant_data.profile.address %}
+                                {{ restaurant_data.profile.address }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+                        <p><strong>Contact:</strong> 
+                            {% if restaurant_data.profile.contact_number %}
+                                {{ restaurant_data.profile.contact_number }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p><strong>Location:</strong> Not specified</p>
+                        <p><strong>Contact:</strong> Not specified</p>
+                    {% endif %}
+                </div>
+                <div class="restaurant-actions">
+                    <a href="{% url 'view_restaurant_details' restaurant_data.user.id %}" class="btn btn-small">View Details</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No restaurants registered yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Active Collaborations -->
+    <div class="dashboard-section">
+        <h2>Active Donations to Complete</h2>
+        <div class="collaborations-grid">
+            {% for collaboration in active_collaborations %}
+            <div class="collaboration-card">
+                <div class="collaboration-header">
+                    <h3>Donation from {{ collaboration.donor.username }}</h3>
+                    <span class="status active">ACTIVE</span>
+                </div>
+                <div class="collaboration-details">
+                    <p><strong>Date:</strong> {{ collaboration.collaboration_date|date:"M d, Y" }}</p>
+                    {% if collaboration.food_donation %}
+                        <p><strong>Food:</strong> {{ collaboration.food_donation.food_type }}</p>
+                        <p><strong>Quantity:</strong> {{ collaboration.food_donation.quantity }}</p>
+                        <p><strong>Location:</strong> {{ collaboration.food_donation.location }}</p>
+                    {% endif %}
+                    {% if collaboration.notes %}
+                        <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="collaboration-actions">
+                    <a href="{% url 'complete_donation' collaboration.id %}" class="btn btn-small btn-primary">Complete Donation</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No active donations to complete at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recent Collaborations -->
+    <div class="dashboard-section">
+        <h2>Recent Collaborations</h2>
+        <div class="collaborations-grid">
+            {% for collaboration in collaborations %}
+            <div class="collaboration-card">
+                <div class="collaboration-header">
+                    <h3>Collaboration with {{ collaboration.donor.username }}</h3>
+                    <span class="status {{ collaboration.status|lower }}">{{ collaboration.status }}</span>
+                </div>
+                <div class="collaboration-details">
+                    <p><strong>Date:</strong> {{ collaboration.collaboration_date|date:"M d, Y" }}</p>
+                    {% if collaboration.food_donation %}
+                        <p><strong>Food:</strong> {{ collaboration.food_donation.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.food_request %}
+                        <p><strong>Request:</strong> {{ collaboration.food_request.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.people_served %}
+                        <p><strong>People Served:</strong> {{ collaboration.people_served }}</p>
+                    {% endif %}
+                    {% if collaboration.completion_date %}
+                        <p><strong>Completed:</strong> {{ collaboration.completion_date|date:"M d, Y" }}</p>
+                    {% endif %}
+                    {% if collaboration.notes %}
+                        <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No collaborations yet. Start by requesting food from restaurants!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

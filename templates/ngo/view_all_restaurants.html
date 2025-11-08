@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}All Restaurants - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="restaurants-container">
+        <h1>All Restaurant Names List</h1>
+        <p>Browse and connect with restaurants in your area.</p>
+        
+        <div class="restaurants-grid">
+            {% for restaurant_data in all_restaurants %}
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <h3>{{ restaurant_data.user.username }}</h3>
+                    {% if restaurant_data.profile %}
+                        {% if restaurant_data.profile.restaurant_name %}
+                            <p class="org-name">{{ restaurant_data.profile.restaurant_name }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="restaurant-details">
+                    {% if restaurant_data.profile %}
+                        {% if restaurant_data.profile.description %}
+                            <p>{{ restaurant_data.profile.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        <p><strong>Location:</strong> {{ restaurant_data.profile.address }}</p>
+                        <p><strong>Contact:</strong> {{ restaurant_data.profile.contact_number }}</p>
+                    {% else %}
+                        <p><strong>Location:</strong> Not specified</p>
+                        <p><strong>Contact:</strong> Not specified</p>
+                    {% endif %}
+                </div>
+                <div class="restaurant-actions">
+                    <a href="{% url 'view_restaurant_details' restaurant_data.user.id %}" class="btn btn-small">View Details</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No restaurants registered yet.</p>
+                <a href="{% url 'ngo_dashboard' %}" class="btn">Back to Dashboard</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}All NGOs - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="ngos-container">
+        <h1>All NGOs on App</h1>
+        <p>Browse and connect with NGOs in your area.</p>
+        
+        <div class="ngos-grid">
+            {% for ngo_data in all_ngos %}
+            <div class="ngo-card">
+                <div class="ngo-header">
+                    <h3>{{ ngo_data.user.username }}</h3>
+                    {% if ngo_data.profile %}
+                        {% if ngo_data.profile.organization_name %}
+                            <p class="org-name">{{ ngo_data.profile.organization_name }}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="ngo-details">
+                    {% if ngo_data.profile %}
+                        {% if ngo_data.profile.description %}
+                            <p>{{ ngo_data.profile.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        <p><strong>Location:</strong> {{ ngo_data.profile.address }}</p>
+                        <p><strong>Contact:</strong> {{ ngo_data.profile.contact_number }}</p>
+                    {% else %}
+                        <p><strong>Location:</strong> Not specified</p>
+                        <p><strong>Contact:</strong> Not specified</p>
+                    {% endif %}
+                </div>
+                <div class="ngo-actions">
+                    <a href="{% url 'view_ngo_details' ngo_data.user.id %}" class="btn btn-small">View Details</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No NGOs registered yet.</p>
+                <a href="{% url 'restaurant_dashboard' %}" class="btn">Back to Dashboard</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'restaurant_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

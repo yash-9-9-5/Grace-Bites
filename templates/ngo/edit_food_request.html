@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Food Request - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Edit Food Request</h1>
+        <p>Update your food request details.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.food_type.id_for_label }}">Food Type:</label>
+                {{ form.food_type }}
+                {% if form.food_type.errors %}
+                    <div class="error">{{ form.food_type.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.quantity_required.id_for_label }}">Quantity Required:</label>
+                {{ form.quantity_required }}
+                {% if form.quantity_required.errors %}
+                    <div class="error">{{ form.quantity_required.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.location.id_for_label }}">Location:</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                    <div class="error">{{ form.location.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.required_timing.id_for_label }}">Required Timing:</label>
+                {{ form.required_timing }}
+                {% if form.required_timing.errors %}
+                    <div class="error">{{ form.required_timing.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description:</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Request</button>
+                <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

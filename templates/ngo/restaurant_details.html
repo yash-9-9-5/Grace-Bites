@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Restaurant Details - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="restaurant-details-container">
+        <h1>Restaurant Details</h1>
+        
+        <div class="restaurant-info">
+            <h2>{{ restaurant.username }}</h2>
+            {% if restaurant_profile %}
+                {% if restaurant_profile.restaurant_name %}
+                    <p class="org-name">{{ restaurant_profile.restaurant_name }}</p>
+                {% endif %}
+                
+                {% if restaurant_profile.description %}
+                    <p class="description">{{ restaurant_profile.description }}</p>
+                {% endif %}
+                
+                <div class="contact-info">
+                    <p><strong>Address:</strong> {{ restaurant_profile.address }}</p>
+                    <p><strong>Contact:</strong> {{ restaurant_profile.contact_number }}</p>
+                    <p><strong>Email:</strong> {{ restaurant.email }}</p>
+                </div>
+            {% else %}
+                <div class="contact-info">
+                    <p><strong>Address:</strong> Not specified</p>
+                    <p><strong>Contact:</strong> Not specified</p>
+                    <p><strong>Email:</strong> {{ restaurant.email }}</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="restaurant-donations">
+            <h3>Available Food Donations</h3>
+            {% if restaurant_donations %}
+                <div class="donations-grid">
+                    {% for donation in restaurant_donations %}
+                    <div class="donation-card">
+                        <div class="donation-header">
+                            <h4>{{ donation.food_type }}</h4>
+                            <span class="status {% if donation.is_available %}available{% else %}claimed{% endif %}">
+                                {% if donation.is_available %}Available{% else %}Claimed{% endif %}
+                            </span>
+                        </div>
+                        <div class="donation-details">
+                            <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+                            <p><strong>Location:</strong> {{ donation.location }}</p>
+                            <p><strong>Expires:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+                            {% if donation.description %}
+                                <p><strong>Description:</strong> {{ donation.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="donation-actions">
+                            <a href="{% url 'request_food_from_donation' donation.id %}" class="btn btn-small">Request Food</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No available food donations from this restaurant.</p>
+            {% endif %}
+        </div>
+        
+        <div class="collaborations">
+            <h3>Collaboration History</h3>
+            {% if collaborations %}
+                <div class="collaborations-grid">
+                    {% for collaboration in collaborations %}
+                    <div class="collaboration-card">
+                        <div class="collaboration-header">
+                            <h4>Collaboration on {{ collaboration.collaboration_date|date:"M d, Y" }}</h4>
+                            <span class="status {{ collaboration.status|lower }}">{{ collaboration.status }}</span>
+                        </div>
+                        <div class="collaboration-details">
+                            {% if collaboration.food_donation %}
+                                <p><strong>Food Donated:</strong> {{ collaboration.food_donation.food_type }}</p>
+                            {% endif %}
+                            {% if collaboration.food_request %}
+                                <p><strong>Food Requested:</strong> {{ collaboration.food_request.food_type }}</p>
+                            {% endif %}
+                            {% if collaboration.notes %}
+                                <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No collaboration history with this restaurant.</p>
+            {% endif %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Grace Bites{% endblock %}
+
+{% block content %}
+{% load static %}
+<div class="form-container">
+    <div class="form-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Grace Bites Logo">
+    </div>
+    <h2>Welcome Back</h2>
+    <p style="text-align: center; margin-bottom: 2rem; color: #666;">Sign in to your Grace Bites account</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username *</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="error-message">{{ form.username.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">Password *</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="error-message">{{ form.password.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn">Sign In</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1rem;">
+        <p>Don't have an account? <a href="{% url 'register' %}" style="color: #ff6347;">Register here</a></p>
+    </div>
+</div>
+{% endblock %} 

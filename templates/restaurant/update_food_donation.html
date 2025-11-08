@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Food Donation - Restaurant Dashboard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Update Food Donation</h2>
+    <p style="text-align: center; margin-bottom: 2rem; color: #666;">Update your food donation details</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.food_type.id_for_label }}">Food Type *</label>
+            {{ form.food_type }}
+            {% if form.food_type.errors %}
+                <div class="error-message">{{ form.food_type.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.quantity.id_for_label }}">Quantity *</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+                <div class="error-message">{{ form.quantity.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description *</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error-message">{{ form.description.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.expiry_date.id_for_label }}">Expiry Date *</label>
+            {{ form.expiry_date }}
+            {% if form.expiry_date.errors %}
+                <div class="error-message">{{ form.expiry_date.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.location.id_for_label }}">Location *</label>
+            {{ form.location }}
+            {% if form.location.errors %}
+                <div class="error-message">{{ form.location.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.image.id_for_label }}">Food Image (Optional)</label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="error-message">{{ form.image.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn">Update Donation</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'restaurant_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

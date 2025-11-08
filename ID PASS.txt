@@ -1,0 +1,4 @@
+restaurant		ngo		EVENT PLANNER
+y1			n1 			s1
+y1y1y1			n1n1n1			s1s1s1
+

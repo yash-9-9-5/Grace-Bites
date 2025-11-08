@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Fulfill NGO Request - Restaurant Dashboard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Fulfill NGO Request</h2>
+    <p style="text-align: center; margin-bottom: 2rem; color: #666;">Help fulfill this NGO's food request</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="request-details">
+        <h3>Request Details</h3>
+        <p><strong>Food Type:</strong> {{ ngo_request.food_type }}</p>
+        <p><strong>Quantity Required:</strong> {{ ngo_request.quantity_required }}</p>
+        <p><strong>Location:</strong> {{ ngo_request.location }}</p>
+        <p><strong>Required Timing:</strong> {{ ngo_request.required_timing|date:"M d, Y H:i" }}</p>
+        <p><strong>From NGO:</strong> {{ ngo_request.requester.username }}</p>
+        {% if ngo_request.description %}
+            <p><strong>Description:</strong> {{ ngo_request.description }}</p>
+        {% endif %}
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.notes.id_for_label }}">Collaboration Notes (Optional)</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <div class="error-message">{{ form.notes.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn">Fulfill Request</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'restaurant_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

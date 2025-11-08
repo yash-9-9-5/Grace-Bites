@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}CSRF Debug - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>CSRF Debug Test</h2>
+    <p><strong>Message:</strong> {{ message }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn">Test CSRF Token</button>
+    </form>
+    
+    <div style="margin-top: 2rem; background: #f5f5f5; padding: 1rem; border-radius: 5px;">
+        <h3>Debug Information:</h3>
+        <p><strong>Session ID:</strong> {{ session_id|default:"No session" }}</p>
+        <p><strong>CSRF Token:</strong> {{ csrf_token }}</p>
+        <p><strong>Current CSRF Token:</strong> {{ csrf_token }}</p>
+        <p><strong>User:</strong> {{ request.user.username|default:"Anonymous" }}</p>
+    </div>
+    
+    <div style="margin-top: 1rem;">
+        <a href="{% url 'login' %}" class="btn">Go to Login</a>
+        <a href="{% url 'register' %}" class="btn">Go to Register</a>
+    </div>
+</div>
+{% endblock %} 

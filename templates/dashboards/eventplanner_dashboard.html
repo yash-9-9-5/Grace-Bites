@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Event Planner Dashboard - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Grace Bites Logo">
+    </div>
+    <div class="dashboard-header">
+        <div class="header-content">
+            <a href="{% url 'donor_badge_info' %}" class="badge-link">
+                <div class="badge-spot">
+                    {% if badge_level %}
+                        <img src="{% static 'badges/'|add:badge_level|lower|add:'_badge.png' %}" alt="{{ badge_level|title }} Badge" class="badge-image" title="{{ badge_level|title }} Badge">
+                    {% else %}
+                        <div class="no-badge-text">No badges received yet</div>
+                    {% endif %}
+                </div>
+            </a>
+            <div class="welcome-content">
+                <h1>Welcome, {{ request.user.username }}!</h1>
+                <p>Donate surplus food from your events to help those in need.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'delete_account' %}" class="btn btn-danger" 
+                   onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                    🗑️ Delete Account
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Total Donations</h3>
+            <p class="stat-number">{{ total_donations }}</p>
+            <p class="stat-label">All time</p>
+        </div>
+        <div class="stat-card">
+            <h3>Active Requests</h3>
+            <p class="stat-number">{{ ngo_requests.count }}</p>
+            <p class="stat-label">Pending</p>
+        </div>
+        <div class="stat-card">
+            <h3>NGOs Supported</h3>
+            <p class="stat-number">{{ analysis.ngos_helped_count }}</p>
+            <p class="stat-label">Total</p>
+        </div>
+        <div class="stat-card">
+            <h3>Monthly Donations</h3>
+            <p class="stat-number">{{ analysis.monthly_donations_made }}</p>
+            <p class="stat-label">This month</p>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="dashboard-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{% url 'add_event_food_donation' %}" class="btn">Add Event</a>
+            <a href="{% url 'eventplanner_profile' %}" class="btn">Update Profile</a>
+            <a href="{% url 'view_all_requests_from_event' %}" class="btn">View Requests</a>
+            <a href="{% url 'view_all_ngos_from_event' %}" class="btn">Browse NGOs</a>
+        </div>
+    </div>
+    
+    <!-- Event Food Management Section -->
+    <div class="dashboard-section">
+        <h2>Your Event Food Donations</h2>
+        <div class="food-grid">
+            {% for donation in user_donations %}
+            <div class="food-card">
+                {% if donation.image %}
+                    <img src="{{ donation.image.url }}" alt="{{ donation.food_type }}" class="food-image">
+                {% endif %}
+                <div class="food-details">
+                    <h3>{{ donation.food_type }}</h3>
+                    <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+                    <p><strong>Location:</strong> {{ donation.location }}</p>
+                    <p><strong>Expires:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if donation.is_available %}
+                            <span class="status available">Available</span>
+                        {% else %}
+                            <span class="status claimed">Claimed</span>
+                        {% endif %}
+                    </p>
+                    <div class="food-actions">
+                        <a href="{% url 'update_event_food_donation' donation.id %}" class="btn btn-small">Edit</a>
+                        <a href="{% url 'remove_event_food_donation' donation.id %}" class="btn btn-small btn-danger">Remove</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No event food donations yet. Start by adding your first event donation!</p>
+                <a href="{% url 'add_event_food_donation' %}" class="btn">Add First Event</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- NGO Requests Section -->
+    <div class="dashboard-section" id="ngo-requests">
+        <h2>Requests from NGOs for Food</h2>
+        <div class="requests-grid">
+            {% for request in ngo_requests %}
+            <div class="request-card">
+                <div class="request-header">
+                    <h3>{{ request.food_type }}</h3>
+                    <span class="status pending">{{ request.status }}</span>
+                </div>
+                <div class="request-details">
+                    <p><strong>Required:</strong> {{ request.quantity_required }}</p>
+                    <p><strong>Location:</strong> {{ request.location }}</p>
+                    <p><strong>Timing:</strong> {{ request.required_timing|date:"M d, Y H:i" }}</p>
+                    <p><strong>From:</strong> {{ request.requester.username }}</p>
+                    {% if request.description %}
+                        <p><strong>Description:</strong> {{ request.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="request-actions">
+                    <a href="{% url 'fulfill_ngo_request_from_event' request.id %}" class="btn btn-small">Fulfill Request</a>
+                    <a href="{% url 'view_ngo_details_from_event' request.requester.id %}" class="btn btn-small btn-secondary">View NGO</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No pending requests from NGOs at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Completed Donations -->
+    <div class="dashboard-section">
+        <h2>Completed Donations</h2>
+        <div class="collaborations-grid">
+            {% for collaboration in completed_collaborations %}
+            <div class="collaboration-card">
+                <div class="collaboration-header">
+                    <h3>Donation to {{ collaboration.ngo.username }}</h3>
+                    <span class="status completed">COMPLETED</span>
+                </div>
+                <div class="collaboration-details">
+                    <p><strong>Date:</strong> {{ collaboration.collaboration_date|date:"M d, Y" }}</p>
+                    {% if collaboration.food_donation %}
+                        <p><strong>Food:</strong> {{ collaboration.food_donation.food_type }}</p>
+                        <p><strong>Quantity:</strong> {{ collaboration.food_donation.quantity }}</p>
+                    {% endif %}
+                    {% if collaboration.people_served %}
+                        <p><strong>People Served:</strong> {{ collaboration.people_served }}</p>
+                    {% endif %}
+                    {% if collaboration.completion_date %}
+                        <p><strong>Completed:</strong> {{ collaboration.completion_date|date:"M d, Y" }}</p>
+                    {% endif %}
+                    {% if collaboration.notes %}
+                        <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No completed donations yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recent Collaborations -->
+    <div class="dashboard-section">
+        <h2>Recent Collaborations</h2>
+        <div class="collaborations-grid">
+            {% for collaboration in collaborations %}
+            <div class="collaboration-card">
+                <div class="collaboration-header">
+                    <h3>Collaboration with {{ collaboration.ngo.username }}</h3>
+                    <span class="status {{ collaboration.status|lower }}">{{ collaboration.status }}</span>
+                </div>
+                <div class="collaboration-details">
+                    <p><strong>Date:</strong> {{ collaboration.collaboration_date|date:"M d, Y" }}</p>
+                    {% if collaboration.food_donation %}
+                        <p><strong>Food:</strong> {{ collaboration.food_donation.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.food_request %}
+                        <p><strong>Request:</strong> {{ collaboration.food_request.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.notes %}
+                        <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No collaborations yet. Start by fulfilling NGO requests!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pending Donation Requests -->
+    <div class="dashboard-section" id="pending-donation-requests">
+        <h2>Pending Donation Requests</h2>
+        <div class="requests-grid">
+            {% for collab in pending_donation_requests %}
+            <div class="request-card">
+                <div class="request-header">
+                    <h3>{{ collab.food_donation.food_type }}</h3>
+                    <span class="status pending">PENDING</span>
+                </div>
+                <div class="request-details">
+                    <p><strong>Requested by:</strong> {{ collab.ngo.username }}</p>
+                    {% if collab.food_donation %}
+                        <p><strong>Quantity:</strong> {{ collab.food_donation.quantity }}</p>
+                        <p><strong>Location:</strong> {{ collab.food_donation.location }}</p>
+                        <p><strong>Expires:</strong> {{ collab.food_donation.expiry_date|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    {% if collab.notes %}
+                        <p><strong>Notes:</strong> {{ collab.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="request-actions">
+                    <form method="post" action="{% url 'accept_event_donation_request' collab.id %}" style="display:inline-block;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-small">Accept</button>
+                    </form>
+                    <form method="post" action="{% url 'reject_event_donation_request' collab.id %}" style="display:inline-block; margin-left: 8px;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-small btn-danger">Reject</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No pending donation requests at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

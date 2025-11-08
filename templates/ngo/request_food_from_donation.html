@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Food from Donation - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Request Food from Donation</h1>
+        <p>Request food from this donation.</p>
+        
+        <div class="donation-details">
+            <h3>Donation Details</h3>
+            <p><strong>Food Type:</strong> {{ donation.food_type }}</p>
+            <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+            <p><strong>Location:</strong> {{ donation.location }}</p>
+            <p><strong>Expiry Date:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+            <p><strong>From:</strong> {{ donation.donor.username }}</p>
+            {% if donation.description %}
+                <p><strong>Description:</strong> {{ donation.description }}</p>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}">Request Notes:</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div class="error">{{ form.notes.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Request</button>
+                <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

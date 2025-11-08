@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}All Food Donations - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="donations-container">
+        <h1>All Food Posted by Restaurants</h1>
+        <p>Browse available food donations from restaurants and event planners.</p>
+        
+        <div class="food-grid">
+            {% for donation in all_food_donations %}
+            <div class="food-card">
+                {% if donation.image %}
+                    <img src="{{ donation.image.url }}" alt="{{ donation.food_type }}" class="food-image">
+                {% endif %}
+                <div class="food-details">
+                    <h3>{{ donation.food_type }}</h3>
+                    <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+                    <p><strong>Location:</strong> {{ donation.location }}</p>
+                    <p><strong>Expires:</strong> {{ donation.expiry_date|date:"M d, Y" }}</p>
+                    <p><strong>From:</strong> {{ donation.donor.username }}</p>
+                    {% if donation.description %}
+                        <p><strong>Description:</strong> {{ donation.description|truncatewords:15 }}</p>
+                    {% endif %}
+                    <div class="food-actions">
+                        <a href="{% url 'request_food_from_donation' donation.id %}" class="btn btn-small">Request Food</a>
+                        <a href="{% url 'view_restaurant_details' donation.donor.id %}" class="btn btn-small btn-secondary">View Restaurant</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No food donations available at the moment.</p>
+                <a href="{% url 'ngo_dashboard' %}" class="btn">Back to Dashboard</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Badge Information - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="static-page-container">
+        <h1>Donor Badge Information</h1>
+        <p>Earn badges by making donations within a single month. Your badge reflects your impact and commitment to reducing food waste!</p>
+
+        <div class="badge-info-grid">
+            <div class="badge-info-card">
+                <img src="{% static 'badges/bronze_badge.png' %}" alt="Bronze Badge">
+                <h2>Bronze Badge</h2>
+                <p>Make <strong>5+ donations</strong> in a month.</p>
+            </div>
+            <div class="badge-info-card">
+                <img src="{% static 'badges/silver_badge.png' %}" alt="Silver Badge">
+                <h2>Silver Badge</h2>
+                <p>Make <strong>10+ donations</strong> in a month.</p>
+            </div>
+            <div class="badge-info-card">
+                <img src="{% static 'badges/gold_badge.png' %}" alt="Gold Badge">
+                <h2>Gold Badge</h2>
+                <p>Make <strong>15+ donations</strong> in a month.</p>
+            </div>
+            <div class="badge-info-card">
+                <img src="{% static 'badges/diamond_badge.png' %}" alt="Diamond Badge">
+                <h2>Diamond Badge</h2>
+                <p>Make <strong>20+ donations</strong> in a month.</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

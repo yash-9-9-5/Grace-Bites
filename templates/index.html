@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Grace Bites{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Welcome to Grace Bites</h1>
+        <p>Reducing food waste by connecting restaurants and event planners with NGOs.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn">Register</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+        </div>
+    </div>
+</section>
+
+<section class="about">
+    <h2>Our Mission</h2>
+    <div class="about-container">
+        <div class="about-item">
+            <img src="{% static 'images/donation.jpg' %}" alt="Food Donation">
+            <h3>Donate Food</h3>
+            <p>Restaurants and event planners can easily donate their surplus food.</p>
+        </div>
+        <div class="about-item">
+            <img src="{% static 'images/ngo.jpg' %}" alt="NGO Collaboration">
+            <h3>Help NGOs</h3>
+            <p>NGOs can find and request food donations to help those in need.</p>
+        </div>
+        <div class="about-item">
+            <img src="{% static 'images/community.jpg' %}" alt="Community Building">
+            <h3>Build Community</h3>
+            <p>Join a community dedicated to reducing food waste and helping others.</p>
+        </div>
+    </div>
+</section>
+{% endblock %} 

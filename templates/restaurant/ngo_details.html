@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}NGO Details - Restaurant Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>{{ ngo.username }}</h1>
+        {% if ngo_profile %}
+            {% if ngo_profile.organization_name %}
+                <p>{{ ngo_profile.organization_name }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <div class="ngo-info">
+        <div class="info-card">
+            <h3>Contact Information</h3>
+            {% if ngo_profile %}
+                <p><strong>Address:</strong> {{ ngo_profile.address }}</p>
+                <p><strong>Contact:</strong> {{ ngo_profile.contact_number }}</p>
+                {% if ngo_profile.description %}
+                    <p><strong>Description:</strong> {{ ngo_profile.description }}</p>
+                {% endif %}
+            {% else %}
+                <p><strong>Address:</strong> Not specified</p>
+                <p><strong>Contact:</strong> Not specified</p>
+                <p><strong>Description:</strong> Not specified</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="dashboard-section">
+        <h2>NGO's Food Requests</h2>
+        <div class="requests-grid">
+            {% for request in ngo_requests %}
+            <div class="request-card">
+                <div class="request-header">
+                    <h3>{{ request.food_type }}</h3>
+                    <span class="status {{ request.status|lower }}">{{ request.status }}</span>
+                </div>
+                <div class="request-details">
+                    <p><strong>Required:</strong> {{ request.quantity_required }}</p>
+                    <p><strong>Location:</strong> {{ request.location }}</p>
+                    <p><strong>Timing:</strong> {{ request.required_timing|date:"M d, Y H:i" }}</p>
+                    {% if request.description %}
+                        <p><strong>Description:</strong> {{ request.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No food requests from this NGO yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="dashboard-section">
+        <h2>Collaboration History</h2>
+        <div class="collaborations-grid">
+            {% for collaboration in collaborations %}
+            <div class="collaboration-card">
+                <div class="collaboration-header">
+                    <h3>Collaboration with {{ collaboration.ngo.username }}</h3>
+                    <span class="status {{ collaboration.status|lower }}">{{ collaboration.status }}</span>
+                </div>
+                <div class="collaboration-details">
+                    <p><strong>Date:</strong> {{ collaboration.collaboration_date|date:"M d, Y" }}</p>
+                    {% if collaboration.food_donation %}
+                        <p><strong>Food:</strong> {{ collaboration.food_donation.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.food_request %}
+                        <p><strong>Request:</strong> {{ collaboration.food_request.food_type }}</p>
+                    {% endif %}
+                    {% if collaboration.notes %}
+                        <p><strong>Notes:</strong> {{ collaboration.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <p>No collaboration history with this NGO yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'restaurant_dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

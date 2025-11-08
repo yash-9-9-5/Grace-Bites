@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Food Request - Grace Bites{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1>Delete Food Request</h1>
+        <p>Are you sure you want to delete this food request?</p>
+        
+        <div class="request-details">
+            <h3>{{ food_request.food_type }}</h3>
+            <p><strong>Quantity Required:</strong> {{ food_request.quantity_required }}</p>
+            <p><strong>Location:</strong> {{ food_request.location }}</p>
+            <p><strong>Required Timing:</strong> {{ food_request.required_timing|date:"M d, Y H:i" }}</p>
+            {% if food_request.description %}
+                <p><strong>Description:</strong> {{ food_request.description }}</p>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Delete Request</button>
+                <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
