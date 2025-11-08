@@ -1,0 +1,7 @@
+This directory should contain the following images for the homepage:
+
+1. donation.jpg - Image representing food donation
+2. ngo.jpg - Image representing NGO collaboration  
+3. community.jpg - Image representing community building
+
+These images are referenced in the homepage template and should be added here. 

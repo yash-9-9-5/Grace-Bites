@@ -40,7 +40,15 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 # Fallback to an empty list or specific localhost for local development.
 # We also ensure the production URL is always an allowed host when DEBUG is False.
 if not DEBUG:
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+    allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', '')
+    if allowed_hosts_str:
+        ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+    else:
+        # If no ALLOWED_HOSTS set in production, allow all (not ideal but prevents errors)
+        # TODO: Set ALLOWED_HOSTS environment variable in Vercel!
+        ALLOWED_HOSTS = ['*']
+        import warnings
+        warnings.warn("ALLOWED_HOSTS not set in production! Set it in Vercel environment variables.")
 else:
     # Use standard localhost only during local development
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
@@ -56,6 +64,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # WhiteNoise for serving static files on Vercel
+    # Note: WhiteNoise middleware handles static file serving
 
     # My apps
     'accounts',
@@ -67,6 +78,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise middleware - must be right after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',  # Temporarily disabled
@@ -100,9 +113,26 @@ WSGI_APPLICATION = 'grace_bites_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Check if PostgreSQL environment variables are set (for Vercel/production)
-if os.environ.get('DB_NAME'):
-    # Use PostgreSQL if database credentials are provided
+# Try to use dj-database-url if DATABASE_URL is set (common on Vercel/Heroku)
+# Otherwise, use individual environment variables or fallback to SQLite
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
+
+# Check for DATABASE_URL first (Vercel Postgres, Heroku, etc.)
+database_url = os.environ.get('DATABASE_URL')
+if database_url and dj_database_url:
+    # Use dj-database-url to parse DATABASE_URL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif os.environ.get('DB_NAME'):
+    # Use PostgreSQL if individual database credentials are provided
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -161,10 +191,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# STATIC_ROOT is where collectstatic will gather all static files
+# This is required for WhiteNoise to serve static files on Vercel
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# STATICFILES_DIRS tells Django where to find static files during development
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+# WhiteNoise configuration for serving static files
+# WhiteNoise will serve files from STATIC_ROOT in production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files (user uploads)
+# NOTE: On Vercel, you should use cloud storage (S3, Cloudinary, etc.)
+# Local media storage won't persist on serverless functions
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
