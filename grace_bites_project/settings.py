@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # for local development (or raise an error if needed).
 SECRET_KEY = os.environ.get(
     'SECRET_KEY', 
-    'django-insecure-k%&j(69w#^t=c%&j(69w#^t=c%&j(69w#^t=c%&j(69w#^t=c' # Use a temporary dummy key for local fallback if necessary
+    'django-insecure-3f#+ho%nx4f0dl19#6w+gg3+#(w27oo(czdt&szd$%n!6j3g7m' # Use a temporary dummy key for local fallback if necessary
 ) 
 
 # 2. DEBUG
